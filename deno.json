@@ -1,7 +1,7 @@
 {
   "tasks": {
-    "debug": "deno run --inspect-brk --allow-net --unstable --allow-read main.js",
-    "dev": "deno run --watch --allow-net --unstable --allow-read main.js",
-    "start": "deno run --allow-net --unstable --allow-read main.js"
+    "debug": "deno run --inspect-brk --allow-net --unstable --allow-read main.ts",
+    "dev": "deno run --watch --allow-net --unstable --allow-read main.ts",
+    "start": "deno run --allow-net --unstable --allow-read main.ts"
   }
 }

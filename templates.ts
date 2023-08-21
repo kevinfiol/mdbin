@@ -1,4 +1,4 @@
-const layout = (content) => `
+const layout = (content: string) => `
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -19,10 +19,10 @@ const layout = (content) => `
   </html>
 `;
 
-export const indexPage = ({
+export const homePage = ({
   paste = '',
   url = '',
-  errors = {}
+  errors = { url: '' }
 } = {}) => layout(`
   <form method="post" action="/save">
     <textarea name="paste" required>${paste}</textarea>
@@ -47,7 +47,7 @@ export const indexPage = ({
   </form>
 `);
 
-export const pastePage = ({ html }) => layout(`
+export const pastePage = ({ html = '' } = {}) => layout(`
   <div class="paste">
     ${html}
   </div>
