@@ -6,15 +6,14 @@ const layout = (content: string) => `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="description" content="pastebin" >
+    <link rel="stylesheet" href="codemirror.min.css">
     <link rel="stylesheet" href="main.css">
     <title>
       pastebin
     </title>
   </head>
   <body>
-    <main>
-      ${content}
-    </main>
+    ${content}
   </body>
   </html>
 `;
@@ -24,33 +23,50 @@ export const homePage = ({
   url = '',
   errors = { url: '' }
 } = {}) => layout(`
-  <form method="post" action="/save">
-    <textarea name="paste" required>${paste}</textarea>
+  <main>
+    <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
+    <label for="tab1">Editor</label>
+    <input type="radio" name="tabs" id="tab2" class="tab-input" />
+    <label for="tab2">Preview</label>
 
-    <input
-      name="url"
-      type="text"
-      placeholder="custom url"
-      minlength="3"
-      maxlength="40"
-      value="${url}"
-      aria-invalid="${Boolean(errors.url)}"
-      ${errors.url ? 'aria-describedby="url-error"' : ''}
-    />
-    ${errors.url ? `
-      <strong id="url-error">${errors.url}</strong>
-    ` : ''}
+    <form method="post" action="/save">
+      <div class="tab tab-editor">
+        <textarea id="paste" name="paste" required>${paste}</textarea>
+        <div id="editor"></div>
+      </div>
 
-    <button type="submit">
-      save
-    </button>
-  </form>
+      <div class="tab tab-preview">
+        sup
+      </div>
+
+      <input
+        name="url"
+        type="text"
+        placeholder="custom url"
+        minlength="3"
+        maxlength="40"
+        value="${url}"
+        pattern=".*\\S+.*"
+        aria-invalid="${Boolean(errors.url)}"
+        ${errors.url ? 'aria-describedby="url-error"' : ''}
+      />
+      ${errors.url ? `
+        <strong id="url-error">${errors.url}</strong>
+      ` : ''}
+
+      <button type="submit">
+        save
+      </button>
+    </form>
+  </main>
 `);
 
 export const pastePage = ({ html = '' } = {}) => layout(`
-  <div class="paste">
-    ${html}
-  </div>
+  <main>
+    <div class="paste">
+      ${html}
+    </div>
+  </main>
 `)
 
 export const errorPage = () => layout(`

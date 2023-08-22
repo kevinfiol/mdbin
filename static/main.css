@@ -348,3 +348,33 @@ button:not([disabled]):hover {
 .bottom-0 { bottom: 0; }
 .left-0 { left: 0; }
 .right-0 { right: 0; }
+
+/* tabs */
+input ~ form > .tab { display: none }
+input.tab-input { display: none; }
+
+input.tab-input + label {
+    display: inline-block;
+    padding: 0.6rem;
+}
+
+input.tab-input:checked + label {
+    background-color: var(--code-bg-color);
+}
+
+#tab1:checked ~ form > .tab.tab-editor,
+#tab2:checked ~ form > .tab.tab-preview {
+    display: block;
+}
+
+/* preview tab */
+.tab-preview {
+    padding: 1rem;
+}
+
+/* codemirror overwrites */
+.CodeMirror,
+.tab-preview {
+    background-color: var(--code-bg-color);
+    color: var(--color);
+}

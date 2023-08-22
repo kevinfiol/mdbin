@@ -3,6 +3,7 @@ import { marked } from './lib/marked.js';
 import { Router } from './router.ts';
 import { homePage, pastePage, errorPage } from "./templates.ts";
 
+// @ts-ignore: experimental feature
 const KV = await Deno.openKv();
 
 const MIMES: Record<string, string> = {
@@ -14,6 +15,11 @@ const MIMES: Record<string, string> = {
 
 const FILES: Record<string, string> = {
   '/main.css': await Deno.readTextFile('./static/main.css'),
+  '/codemirror.min.css': await Deno.readTextFile('./static/codemirror.min.css'),
+  '/codemirror.min.js': await Deno.readTextFile('./static/codemirror.min.js'),
+  '/cm-markdown.min.js': await Deno.readTextFile('./static/cm-markdown.min.js'),
+  '/cm-sublime.min.js': await Deno.readTextFile('./static/cm-sublime.min.js'),
+  '/editor.js': await Deno.readTextFile('./static/editor.js'),
   '/favicon.ico': ''
 };
 
@@ -24,7 +30,8 @@ app.get('*', (req) => {
 
   if (url.pathname in FILES) {
     const file = FILES[url.pathname];
-    const ext = url.pathname.split('.')[1];
+    const tokens = url.pathname.split('.');
+    const ext = tokens[tokens.length - 1];
     const type = MIMES[ext];
 
     return new Response(file, {
@@ -135,18 +142,3 @@ function createSlug(text = '') {
 
   return '';
 }
-
-// function escapeHTML(str = '') {
-//   const escapes = {
-//     '&': '&amp;',
-//     '<': '&lt;',
-//     '>': '&gt;',
-//     "'": '&#39;',
-//     '"': '&quot;'
-//   };
-
-//   return str.replace(
-//     /[&<>'"]/g,
-//     (tag) => escapes[tag] || tag
-//   );
-// }
