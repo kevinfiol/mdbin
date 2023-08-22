@@ -29,7 +29,7 @@ export const homePage = ({
     <input type="radio" name="tabs" id="tab2" class="tab-input" />
     <label for="tab2">Preview</label>
 
-    <form method="post" action="/save">
+    <form id="editor-form" method="post" action="/save">
       <div class="tab tab-editor">
         <textarea id="paste" name="paste" required>${paste}</textarea>
         <div id="editor"></div>
@@ -59,6 +59,10 @@ export const homePage = ({
       </button>
     </form>
   </main>
+  <script src="codemirror.min.js"></script>
+  <script src="cm-markdown.min.js"></script>
+  <script src="cm-sublime.min.js"></script>
+  <script src="editor.js"></script>
 `);
 
 export const pastePage = ({ html = '' } = {}) => layout(`

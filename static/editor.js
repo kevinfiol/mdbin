@@ -1,20 +1,48 @@
 (() => {
   const cmEl = document.getElementById('editor');
-  const pasteEl = document.getElementById('paste');
+  const textArea = document.getElementById('paste');
+  const editorTab = document.getElementById('tab1');
+  const editorForm = document.getElementById('editor-form');
 
   // hide paste textarea
-  pasteEl.style.display = 'none';
+  textArea.style.display = 'none';
 
-  console.log(pasteEl.value);
   const editor = new CodeMirror(cmEl, {
     mode: 'markdown',
-    value: pasteEl.value,
+    value: textArea.value,
     keymap: 'sublime',
-    theme: 'ayu-dark'
+    theme: 'material'
   });
 
-  // update text area with editor text
-  editor.on('change', (instance) => {
-    pasteEl.value = instance.getValue();
+  // set onChange to update text area with editor text
+  // this is helpful for persistence across page reloads & 
+  const onChange = debounce((instance) => {
+    textArea.value = instance.getValue();
+  }, 1500);
+
+  editor.on('change', onChange);
+
+  // set event listener to refresh editor on tab select
+  editorTab.addEventListener('click', () => {
+    editor.refresh();
   });
+
+  // override form submit
+  editorForm.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+
+    // set textarea to ensure it is up to date
+    textArea.value = editor.getValue();
+
+    editorForm.submit();
+  });
+
+  function debounce(cb, wait) {
+    let timer;
+
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => cb(...args), wait);
+    };
+  }
 })();

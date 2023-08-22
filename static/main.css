@@ -375,6 +375,5 @@ input.tab-input:checked + label {
 /* codemirror overwrites */
 .CodeMirror,
 .tab-preview {
-    background-color: var(--code-bg-color);
-    color: var(--color);
+    background-color: var(--code-bg-color) !important;
 }
