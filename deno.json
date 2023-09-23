@@ -3,5 +3,8 @@
     "debug": "deno run --inspect-brk --allow-net --unstable --allow-read main.ts",
     "dev": "deno run --watch --allow-net --unstable --allow-read main.ts",
     "start": "deno run --allow-net --unstable --allow-read main.ts"
+  },
+  "imports": {
+    "std/": "https://deno.land/std@0.202.0/"
   }
 }

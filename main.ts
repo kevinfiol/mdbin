@@ -1,45 +1,31 @@
+import { resolve } from 'std/path/mod.ts';
+import { walk } from 'std/fs/mod.ts';
 import { uid } from './lib/uid.js';
 import { marked } from './lib/marked.js';
 import { Router } from './router.ts';
-import { homePage, pastePage, errorPage } from "./templates.ts";
+import { homePage, pastePage, errorPage, editPage } from "./templates.ts";
 
-// @ts-ignore: experimental feature
 const KV = await Deno.openKv();
 
-const MIMES: Record<string, string> = {
-  css: 'text/css',
-  js: 'text/javascript',
-  ico: 'image/vnd.microsoft.icon',
-  png: 'image/png'
-};
+const STATIC_ROOT = resolve('./static');
+const FILES = new Map<string, string>();
 
-const FILES: Record<string, string> = {
-  '/main.css': await Deno.readTextFile('./static/main.css'),
-  '/codemirror.min.css': await Deno.readTextFile('./static/codemirror.min.css'),
-  '/codemirror.min.js': await Deno.readTextFile('./static/codemirror.min.js'),
-  '/cm-markdown.min.js': await Deno.readTextFile('./static/cm-markdown.min.js'),
-  '/cm-sublime.min.js': await Deno.readTextFile('./static/cm-sublime.min.js'),
-  '/editor.js': await Deno.readTextFile('./static/editor.js'),
-  '/favicon.ico': ''
-};
+for await (const file of walk(STATIC_ROOT)) {
+  if (file.isFile) {
+    FILES.set('/' + file.name.normalize(), file.path);
+  }
+}
 
 const app = new Router();
 
-app.get('*', (req) => {
+app.get('*', async (req) => {
   const url = new URL(req.url);
+  const filepath = FILES.get(url.pathname);
 
-  if (url.pathname in FILES) {
-    const file = FILES[url.pathname];
-    const tokens = url.pathname.split('.');
-    const ext = tokens[tokens.length - 1];
-    const type = MIMES[ext];
-
-    return new Response(file, {
-      status: file.length > 0 ? 200 : 404,
-      headers: {
-        'content-type': type
-      }
-    });
+  if (filepath) {
+    const file = await Deno.open(filepath, { read: true });
+    const readableStream = file.readable;
+    return new Response(readableStream);
   }
 });
 
@@ -85,8 +71,7 @@ app.post('/save', async (req) => {
     for (; exists;) {
       id = uid();
       exists = await KV.get([id]).then(
-        (r: { value: string | null }) =>
-          r.value !== null
+        (r) => r.value !== null
       );
     }
 
@@ -109,7 +94,7 @@ app.get('/:id', async (_req, params) => {
 
   if (res.value !== null) {
     const html = marked.parse(res.value);
-    contents = pastePage({ html });
+    contents = pastePage({ id, html });
     status = 200;
   } else {
     contents = errorPage();
@@ -121,6 +106,50 @@ app.get('/:id', async (_req, params) => {
     headers: {
       'content-type': 'text/html'
     }
+  });
+});
+
+app.get('/:id/edit', async (_req, params) => {
+  let contents = '';
+  let status = 200;
+  const id = params.id as string ?? '';
+  const res = await KV.get([id]);
+
+  if (res.value !== null) {
+    const paste = res.value as string;
+    contents = editPage({ id, paste });
+    status = 200;
+  } else {
+    contents = errorPage();
+    status = 404;
+  }
+
+  return new Response(contents, {
+    status,
+    headers: {
+      'content-type': 'text/html'
+    }
+  });
+});
+
+app.post('/:id/save', async (req, params) => {
+  const id = params.id as string ?? '';
+  const form = await req.formData();
+  const paste = form.get('paste') as string;
+  const headers = new Headers({
+    'content-type': 'text/html'
+  });
+
+  if (id.trim().length === 0) {
+    headers.set('location', '/');
+  } else {
+    await KV.set([id], paste);
+    headers.set('location', '/' + id);
+  }
+
+  return new Response('302', {
+    status: 302,
+    headers
   });
 });
 

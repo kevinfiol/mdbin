@@ -94,7 +94,7 @@ pre {
 }
 
 code { background-color: var(--code-bg-color); }
-pre > code { background-color: var(--bg-color); }
+/*pre > code { background-color: var(--bg-color); }*/
 
 a {
     color: var(--link-color);
@@ -343,6 +343,7 @@ button:not([disabled]):hover {
 .white { color: white; }
 .black { color: black; }
 .default-color { color: var(--color); }
+.display-none { display: none; }
 
 .top-0 { top: 0; }
 .bottom-0 { bottom: 0; }
@@ -350,6 +351,11 @@ button:not([disabled]):hover {
 .right-0 { right: 0; }
 
 /* tabs */
+main {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
 input ~ form > .tab { display: none }
 input.tab-input { display: none; }
 
@@ -367,13 +373,26 @@ input.tab-input:checked + label {
     display: block;
 }
 
-/* preview tab */
+/*set minimum heights for editor and preview*/
+#editor,
+#editor > .CodeMirror,
+#preview {
+    min-height: 40rem;
+}
+
+.CodeMirror {
+    padding: 1em;
+}
+
+/* preview tab & paste */
+.paste,
 .tab-preview {
     padding: 1rem;
 }
 
 /* codemirror overwrites */
 .CodeMirror,
-.tab-preview {
+.tab-preview,
+.paste {
     background-color: var(--code-bg-color) !important;
 }

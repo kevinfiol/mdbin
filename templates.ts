@@ -6,8 +6,8 @@ const layout = (content: string) => `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="description" content="pastebin" >
-    <link rel="stylesheet" href="codemirror.min.css">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="/codemirror.min.css">
+    <link rel="stylesheet" href="/main.css">
     <title>
       pastebin
     </title>
@@ -35,8 +35,7 @@ export const homePage = ({
         <div id="editor"></div>
       </div>
 
-      <div class="tab tab-preview">
-        sup
+      <div id="preview" class="tab tab-preview">
       </div>
 
       <input
@@ -50,6 +49,13 @@ export const homePage = ({
         aria-invalid="${Boolean(errors.url)}"
         ${errors.url ? 'aria-describedby="url-error"' : ''}
       />
+      <input
+        name="editcode"
+        type="text"
+        placeholder="optional edit code"
+        minlength="3"
+        maxlength="40"
+      />
       ${errors.url ? `
         <strong id="url-error">${errors.url}</strong>
       ` : ''}
@@ -59,19 +65,51 @@ export const homePage = ({
       </button>
     </form>
   </main>
-  <script src="codemirror.min.js"></script>
-  <script src="cm-markdown.min.js"></script>
-  <script src="cm-sublime.min.js"></script>
-  <script src="editor.js"></script>
+  <script src="/marked.min.js"></script>
+  <script src="/codemirror.min.js"></script>
+  <script src="/cm-markdown.min.js"></script>
+  <script src="/cm-sublime.min.js"></script>
+  <script src="/editor.js"></script>
 `);
 
-export const pastePage = ({ html = '' } = {}) => layout(`
+export const pastePage = ({ id = '', html = '' } = {}) => layout(`
   <main>
     <div class="paste">
       ${html}
     </div>
+    <a href="/${id}/edit">Edit</a>
   </main>
-`)
+`);
+
+export const editPage = ({ id = '', paste = '' } = {}) => layout(`
+  <main>
+    <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
+    <label for="tab1">Editor</label>
+    <input type="radio" name="tabs" id="tab2" class="tab-input" />
+    <label for="tab2">Preview</label>
+
+    <form id="editor-form" method="post" action="/${id}/save">
+      <div class="tab tab-editor">
+        <textarea id="paste" name="paste" required>${paste}</textarea>
+        <div id="editor"></div>
+      </div>
+
+      <div id="preview" class="tab tab-preview">
+      </div>
+
+      <input class="display-none" name="url" type="text" value="${id}" disabled />
+
+      <button type="submit">
+        save
+      </button>
+    </form>
+  </main>
+  <script src="/marked.min.js"></script>
+  <script src="/codemirror.min.js"></script>
+  <script src="/cm-markdown.min.js"></script>
+  <script src="/cm-sublime.min.js"></script>
+  <script src="/editor.js"></script>
+`);
 
 export const errorPage = () => layout(`
   <p>404</p>
