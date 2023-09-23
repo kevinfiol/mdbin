@@ -3,7 +3,7 @@ import { walk } from 'std/fs/mod.ts';
 import { uid } from './lib/uid.js';
 import { marked } from './lib/marked.js';
 import { Router } from './router.ts';
-import { homePage, pastePage, errorPage, editPage } from "./templates.ts";
+import { editPage, errorPage, homePage, pastePage } from './templates.ts';
 
 const KV = await Deno.openKv();
 
@@ -32,15 +32,14 @@ app.get('*', async (req) => {
 app.get('/', () =>
   new Response(homePage(), {
     status: 200,
-    headers: { 'content-type': 'text/html' }
-  })
-);
+    headers: { 'content-type': 'text/html' },
+  }));
 
 app.post('/save', async (req) => {
   let status = 302;
   let contents = '';
   const headers = new Headers({
-    'content-type': 'text/html'
+    'content-type': 'text/html',
   });
 
   const form = await req.formData();
@@ -57,7 +56,7 @@ app.post('/save', async (req) => {
       contents = homePage({
         paste,
         url: customUrl,
-        errors: { url: `url name unavailable: ${customUrl}` }
+        errors: { url: `url name unavailable: ${customUrl}` },
       });
     } else {
       await KV.set([slug], paste);
@@ -71,7 +70,7 @@ app.post('/save', async (req) => {
     for (; exists;) {
       id = uid();
       exists = await KV.get([id]).then(
-        (r) => r.value !== null
+        (r) => r.value !== null,
       );
     }
 
@@ -82,7 +81,7 @@ app.post('/save', async (req) => {
 
   return new Response(contents, {
     status,
-    headers
+    headers,
   });
 });
 
@@ -104,8 +103,8 @@ app.get('/:id', async (_req, params) => {
   return new Response(contents, {
     status,
     headers: {
-      'content-type': 'text/html'
-    }
+      'content-type': 'text/html',
+    },
   });
 });
 
@@ -127,8 +126,8 @@ app.get('/:id/edit', async (_req, params) => {
   return new Response(contents, {
     status,
     headers: {
-      'content-type': 'text/html'
-    }
+      'content-type': 'text/html',
+    },
   });
 });
 
@@ -137,7 +136,7 @@ app.post('/:id/save', async (req, params) => {
   const form = await req.formData();
   const paste = form.get('paste') as string;
   const headers = new Headers({
-    'content-type': 'text/html'
+    'content-type': 'text/html',
   });
 
   if (id.trim().length === 0) {
@@ -149,7 +148,7 @@ app.post('/:id/save', async (req, params) => {
 
   return new Response('302', {
     status: 302,
-    headers
+    headers,
   });
 });
 

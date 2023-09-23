@@ -1,5 +1,5 @@
 type Handler = (req: Request, params: Record<string, unknown>) =>
-  Promise<Response | void>
+  | Promise<Response | void>
   | Response
   | void;
 
@@ -8,7 +8,7 @@ type Register = (pathname: string, handler: Handler) => void;
 interface Route {
   method: string;
   pattern: URLPattern;
-  handler: Handler
+  handler: Handler;
 }
 
 export class Router {
@@ -26,7 +26,7 @@ export class Router {
     this.routes.push({
       method,
       pattern: new URLPattern({ pathname }),
-      handler
+      handler,
     });
   }
 
@@ -35,8 +35,8 @@ export class Router {
 
     for (const route of this.routes) {
       if (
-        route.method === req.method
-        && (route.pattern.pathname === '*' || route.pattern.test(req.url))
+        route.method === req.method &&
+        (route.pattern.pathname === '*' || route.pattern.test(req.url))
       ) {
         const result = route.pattern.exec(req.url);
         const params = result?.pathname.groups || {};

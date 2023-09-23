@@ -6,5 +6,23 @@
   },
   "imports": {
     "std/": "https://deno.land/std@0.202.0/"
+  },
+  "lint": {
+    "include": ["*.ts"],
+    "exclude": ["lib/", "static/"],
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["no-unused-vars"]
+    }
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "include": ["*.ts"],
+    "exclude": ["lib/", "static/"]
   }
 }

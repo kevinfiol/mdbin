@@ -21,8 +21,9 @@ const layout = (content: string) => `
 export const homePage = ({
   paste = '',
   url = '',
-  errors = { url: '' }
-} = {}) => layout(`
+  errors = { url: '' },
+} = {}) =>
+  layout(`
   <main>
     <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
     <label for="tab1">Editor</label>
@@ -56,9 +57,13 @@ export const homePage = ({
         minlength="3"
         maxlength="40"
       />
-      ${errors.url ? `
+      ${
+    errors.url
+      ? `
         <strong id="url-error">${errors.url}</strong>
-      ` : ''}
+      `
+      : ''
+  }
 
       <button type="submit">
         save
@@ -72,7 +77,8 @@ export const homePage = ({
   <script src="/editor.js"></script>
 `);
 
-export const pastePage = ({ id = '', html = '' } = {}) => layout(`
+export const pastePage = ({ id = '', html = '' } = {}) =>
+  layout(`
   <main>
     <div class="paste">
       ${html}
@@ -81,7 +87,8 @@ export const pastePage = ({ id = '', html = '' } = {}) => layout(`
   </main>
 `);
 
-export const editPage = ({ id = '', paste = '' } = {}) => layout(`
+export const editPage = ({ id = '', paste = '' } = {}) =>
+  layout(`
   <main>
     <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
     <label for="tab1">Editor</label>
@@ -111,6 +118,7 @@ export const editPage = ({ id = '', paste = '' } = {}) => layout(`
   <script src="/editor.js"></script>
 `);
 
-export const errorPage = () => layout(`
+export const errorPage = () =>
+  layout(`
   <p>404</p>
 `);
