@@ -23,6 +23,6 @@
     "singleQuote": true,
     "proseWrap": "preserve",
     "include": ["*.ts"],
-    "exclude": ["lib/", "static/"]
+    "exclude": ["lib/", "static/", "templates.ts"]
   }
 }

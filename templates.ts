@@ -1,3 +1,7 @@
+const _if = (condition: unknown, template: string) => (
+  condition ? template : ''
+);
+
 const layout = (content: string) => `
   <!DOCTYPE html>
   <html lang="en">
@@ -22,8 +26,7 @@ export const homePage = ({
   paste = '',
   url = '',
   errors = { url: '' },
-} = {}) =>
-  layout(`
+} = {}) => layout(`
   <main>
     <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
     <label for="tab1">Editor</label>
@@ -48,7 +51,7 @@ export const homePage = ({
         value="${url}"
         pattern=".*\\S+.*"
         aria-invalid="${Boolean(errors.url)}"
-        ${errors.url ? 'aria-describedby="url-error"' : ''}
+        ${_if(errors.url, 'aria-describedby="url-error"')}
       />
       <input
         name="editcode"
@@ -57,13 +60,9 @@ export const homePage = ({
         minlength="3"
         maxlength="40"
       />
-      ${
-    errors.url
-      ? `
+      ${_if(errors.url, `
         <strong id="url-error">${errors.url}</strong>
-      `
-      : ''
-  }
+      `)}
 
       <button type="submit">
         save
@@ -77,8 +76,7 @@ export const homePage = ({
   <script src="/editor.js"></script>
 `);
 
-export const pastePage = ({ id = '', html = '' } = {}) =>
-  layout(`
+export const pastePage = ({ id = '', html = '' } = {}) => layout(`
   <main>
     <div class="paste">
       ${html}
@@ -87,8 +85,9 @@ export const pastePage = ({ id = '', html = '' } = {}) =>
   </main>
 `);
 
-export const editPage = ({ id = '', paste = '' } = {}) =>
-  layout(`
+export const editPage = (
+  { id = '', paste = '', hasEditCode = false, errors = { editCode: '' } } = {},
+) => layout(`
   <main>
     <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
     <label for="tab1">Editor</label>
@@ -106,6 +105,23 @@ export const editPage = ({ id = '', paste = '' } = {}) =>
 
       <input class="display-none" name="url" type="text" value="${id}" disabled />
 
+      ${_if(hasEditCode, `
+        <input
+          name="editcode"
+          type="text"
+          placeholder="edit code"
+          minlength="3"
+          maxlength="40"
+          required
+          aria-invalid="${Boolean(errors.editCode)}"
+          ${_if(errors.editCode, 'aria-describedby="editcode-error"')}
+        />
+      `)}
+
+      ${_if(errors.editCode, `
+        <strong id="editcode-error">${errors.editCode}</strong>
+      `)}
+
       <button type="submit">
         save
       </button>
@@ -118,7 +134,6 @@ export const editPage = ({ id = '', paste = '' } = {}) =>
   <script src="/editor.js"></script>
 `);
 
-export const errorPage = () =>
-  layout(`
+export const errorPage = () => layout(`
   <p>404</p>
 `);

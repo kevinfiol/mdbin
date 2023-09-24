@@ -5,10 +5,18 @@ import { marked } from './lib/marked.js';
 import { Router } from './router.ts';
 import { editPage, errorPage, homePage, pastePage } from './templates.ts';
 
-const KV = await Deno.openKv();
+interface Paste {
+  paste: string;
+  editCode?: string;
+}
 
+const KV = await Deno.openKv();
 const STATIC_ROOT = resolve('./static');
 const FILES = new Map<string, string>();
+const MIMES: Record<string, string> = {
+  'js': 'text/javascript',
+  'css': 'text/css',
+};
 
 for await (const file of walk(STATIC_ROOT)) {
   if (file.isFile) {
@@ -23,17 +31,25 @@ app.get('*', async (req) => {
   const filepath = FILES.get(url.pathname);
 
   if (filepath) {
+    const [ext] = filepath.split('.').slice(-1);
+    const contentType = MIMES[ext] ?? 'text/plain';
     const file = await Deno.open(filepath, { read: true });
     const readableStream = file.readable;
-    return new Response(readableStream);
+    return new Response(readableStream, {
+      status: 200,
+      headers: {
+        'content-type': contentType,
+      },
+    });
   }
 });
 
-app.get('/', () =>
-  new Response(homePage(), {
+app.get('/', () => {
+  return new Response(homePage(), {
     status: 200,
     headers: { 'content-type': 'text/html' },
-  }));
+  });
+});
 
 app.post('/save', async (req) => {
   let status = 302;
@@ -47,8 +63,13 @@ app.post('/save', async (req) => {
   const paste = form.get('paste') as string;
   const slug = createSlug(customUrl);
 
+  let editCode: string | undefined = form.get('editcode') as string;
+  if (typeof editCode === 'string') {
+    editCode = editCode.trim() || undefined;
+  }
+
   if (slug.length > 0) {
-    const res = await KV.get([slug]);
+    const res = await KV.get<Paste>([slug]);
 
     if (res.value !== null) {
       status = 422;
@@ -59,7 +80,7 @@ app.post('/save', async (req) => {
         errors: { url: `url name unavailable: ${customUrl}` },
       });
     } else {
-      await KV.set([slug], paste);
+      await KV.set([slug], { paste, editCode });
       status = 302;
       headers.set('location', '/' + slug.trim());
     }
@@ -69,12 +90,12 @@ app.post('/save', async (req) => {
 
     for (; exists;) {
       id = uid();
-      exists = await KV.get([id]).then(
+      exists = await KV.get<Paste>([id]).then(
         (r) => r.value !== null,
       );
     }
 
-    await KV.set([id], paste);
+    await KV.set([id], { paste, editCode });
     status = 302;
     headers.set('location', '/' + id.trim());
   }
@@ -89,10 +110,11 @@ app.get('/:id', async (_req, params) => {
   let contents = '';
   let status = 200;
   const id = params.id as string ?? '';
-  const res = await KV.get([id]);
+  const res = await KV.get<Paste>([id]);
 
   if (res.value !== null) {
-    const html = marked.parse(res.value);
+    const { paste } = res.value;
+    const html = marked.parse(paste);
     contents = pastePage({ id, html });
     status = 200;
   } else {
@@ -112,11 +134,12 @@ app.get('/:id/edit', async (_req, params) => {
   let contents = '';
   let status = 200;
   const id = params.id as string ?? '';
-  const res = await KV.get([id]);
+  const res = await KV.get<Paste>([id]);
 
   if (res.value !== null) {
-    const paste = res.value as string;
-    contents = editPage({ id, paste });
+    const { editCode, paste } = res.value;
+    const hasEditCode = Boolean(editCode);
+    contents = editPage({ id, paste, hasEditCode });
     status = 200;
   } else {
     contents = errorPage();
@@ -132,9 +155,17 @@ app.get('/:id/edit', async (_req, params) => {
 });
 
 app.post('/:id/save', async (req, params) => {
+  let contents = '302';
+  let status = 302;
+
   const id = params.id as string ?? '';
   const form = await req.formData();
   const paste = form.get('paste') as string;
+  let editCode: string | undefined = form.get('editcode') as string;
+  if (typeof editCode === 'string') {
+    editCode = editCode.trim() || undefined;
+  }
+
   const headers = new Headers({
     'content-type': 'text/html',
   });
@@ -142,12 +173,30 @@ app.post('/:id/save', async (req, params) => {
   if (id.trim().length === 0) {
     headers.set('location', '/');
   } else {
-    await KV.set([id], paste);
-    headers.set('location', '/' + id);
+    const res = await KV.get<Paste>([id]);
+    const existing = res.value as Paste;
+    const hasEditCode = Boolean(existing.editCode);
+
+    if (
+      hasEditCode &&
+      existing.editCode !== editCode
+    ) {
+      // editCode mismatch
+      status = 400;
+      contents = editPage({
+        id,
+        paste,
+        hasEditCode,
+        errors: { editCode: 'invalid edit code' },
+      });
+    } else {
+      await KV.set([id], { ...existing, paste });
+      headers.set('location', '/' + id);
+    }
   }
 
-  return new Response('302', {
-    status: 302,
+  return new Response(contents, {
+    status,
     headers,
   });
 });
