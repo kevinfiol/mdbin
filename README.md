@@ -10,4 +10,4 @@ Easily and freely self-hostable on Deno Deploy.
 * Table of Contents support
 * Clickable anchor links
 * XSS in Preview
-* How-to
+* How-to + Source link
