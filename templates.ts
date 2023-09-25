@@ -29,9 +29,9 @@ export const homePage = ({
 } = {}) => layout(`
   <main>
     <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
-    <label for="tab1">Editor</label>
+    <label for="tab1">editor</label>
     <input type="radio" name="tabs" id="tab2" class="tab-input" />
-    <label for="tab2">Preview</label>
+    <label for="tab2">preview</label>
 
     <form id="editor-form" method="post" action="/save">
       <div class="tab tab-editor">
@@ -42,31 +42,35 @@ export const homePage = ({
       <div id="preview" class="tab tab-preview">
       </div>
 
-      <input
-        name="url"
-        type="text"
-        placeholder="custom url"
-        minlength="3"
-        maxlength="40"
-        value="${url}"
-        pattern=".*\\S+.*"
-        aria-invalid="${Boolean(errors.url)}"
-        ${_if(errors.url, 'aria-describedby="url-error"')}
-      />
-      <input
-        name="editcode"
-        type="text"
-        placeholder="optional edit code"
-        minlength="3"
-        maxlength="40"
-      />
-      ${_if(errors.url, `
-        <strong id="url-error">${errors.url}</strong>
-      `)}
+      <div class="flex gap-1 my1">
+        <input
+          name="url"
+          type="text"
+          placeholder="custom url"
+          minlength="3"
+          maxlength="40"
+          value="${url}"
+          pattern=".*\\S+.*"
+          aria-invalid="${Boolean(errors.url)}"
+          ${_if(errors.url, 'aria-describedby="url-error"')}
+        />
+        <input
+          name="editcode"
+          type="text"
+          placeholder="optional edit code"
+          minlength="3"
+          maxlength="40"
+        />
+        ${_if(errors.url, `
+          <strong id="url-error">${errors.url}</strong>
+        `)}
+      </div>
 
-      <button type="submit">
-        save
-      </button>
+      <div class="button-group">
+        <button type="submit">
+          save
+        </button>
+      </div>
     </form>
   </main>
   <script src="/marked.min.js"></script>
@@ -81,7 +85,10 @@ export const pastePage = ({ id = '', html = '' } = {}) => layout(`
     <div class="paste">
       ${html}
     </div>
-    <a href="/${id}/edit">Edit</a>
+    <div class="button-group">
+      <a class="btn" href="/${id}/edit">edit</a>
+      <a class="btn" href="/${id}/delete">delete</a>
+    </div>
   </main>
 `);
 
@@ -90,9 +97,9 @@ export const editPage = (
 ) => layout(`
   <main>
     <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
-    <label for="tab1">Editor</label>
+    <label for="tab1">editor</label>
     <input type="radio" name="tabs" id="tab2" class="tab-input" />
-    <label for="tab2">Preview</label>
+    <label for="tab2">preview</label>
 
     <form id="editor-form" method="post" action="/${id}/save">
       <div class="tab tab-editor">
@@ -103,8 +110,50 @@ export const editPage = (
       <div id="preview" class="tab tab-preview">
       </div>
 
-      <input class="display-none" name="url" type="text" value="${id}" disabled />
+      <div class="flex gap-1 my1">
+        <input class="display-none" name="url" type="text" value="${id}" disabled />
 
+        ${_if(hasEditCode, `
+          <input
+            name="editcode"
+            type="text"
+            placeholder="edit code"
+            minlength="3"
+            maxlength="40"
+            required
+            aria-invalid="${Boolean(errors.editCode)}"
+            ${_if(errors.editCode, 'aria-describedby="editcode-error"')}
+          />
+        `)}
+
+        ${_if(errors.editCode, `
+          <strong id="editcode-error">${errors.editCode}</strong>
+        `)}
+      </div>
+
+      <div class="button-group">
+        <button type="submit">
+          save
+        </button>
+      </div>
+    </form>
+  </main>
+  <script src="/marked.min.js"></script>
+  <script src="/codemirror.min.js"></script>
+  <script src="/cm-markdown.min.js"></script>
+  <script src="/cm-sublime.min.js"></script>
+  <script src="/editor.js"></script>
+`);
+
+export const deletePage = (
+  { id = '', hasEditCode = false, errors = { editCode: '' } } = {}
+) => layout(`
+  <main>
+    <div>
+      <em>are you sure you want to delete this paste?</em>
+      <strong>${id}</strong>
+    </div>
+    <form method="post" action="/${id}/delete">
       ${_if(hasEditCode, `
         <input
           name="editcode"
@@ -116,22 +165,23 @@ export const editPage = (
           aria-invalid="${Boolean(errors.editCode)}"
           ${_if(errors.editCode, 'aria-describedby="editcode-error"')}
         />
+
+        ${_if(errors.editCode, `
+          <strong id="editcode-error">${errors.editCode}</strong>
+        `)}
       `)}
 
-      ${_if(errors.editCode, `
-        <strong id="editcode-error">${errors.editCode}</strong>
-      `)}
+      <div class="button-group">
+        <button type="submit">
+          delete
+        </button>
 
-      <button type="submit">
-        save
-      </button>
+        <a class="btn" href="/${id}">
+          cancel
+        </a>
+      </div>
     </form>
   </main>
-  <script src="/marked.min.js"></script>
-  <script src="/codemirror.min.js"></script>
-  <script src="/cm-markdown.min.js"></script>
-  <script src="/cm-sublime.min.js"></script>
-  <script src="/editor.js"></script>
 `);
 
 export const errorPage = () => layout(`

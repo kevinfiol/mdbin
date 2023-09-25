@@ -1,9 +1,10 @@
+import xss from 'xss';
 import { resolve } from 'std/path/mod.ts';
 import { walk } from 'std/fs/mod.ts';
 import { uid } from './lib/uid.js';
 import { marked } from './lib/marked.js';
 import { Router } from './router.ts';
-import { editPage, errorPage, homePage, pastePage } from './templates.ts';
+import { editPage, errorPage, homePage, pastePage, deletePage } from './templates.ts';
 
 interface Paste {
   paste: string;
@@ -48,6 +49,78 @@ app.get('/', () => {
   return new Response(homePage(), {
     status: 200,
     headers: { 'content-type': 'text/html' },
+  });
+});
+
+app.get('/:id', async (_req, params) => {
+  let contents = '';
+  let status = 200;
+  const id = params.id as string ?? '';
+  const res = await KV.get<Paste>([id]);
+
+  if (res.value !== null) {
+    const { paste } = res.value;
+    const html = xss(marked.parse(paste));
+    contents = pastePage({ id, html });
+    status = 200;
+  } else {
+    contents = errorPage();
+    status = 404;
+  }
+
+  return new Response(contents, {
+    status,
+    headers: {
+      'content-type': 'text/html',
+    },
+  });
+});
+
+app.get('/:id/edit', async (_req, params) => {
+  let contents = '';
+  let status = 200;
+  const id = params.id as string ?? '';
+  const res = await KV.get<Paste>([id]);
+
+  if (res.value !== null) {
+    const { editCode, paste } = res.value;
+    const hasEditCode = Boolean(editCode);
+    contents = editPage({ id, paste, hasEditCode });
+    status = 200;
+  } else {
+    contents = errorPage();
+    status = 404;
+  }
+
+  return new Response(contents, {
+    status,
+    headers: {
+      'content-type': 'text/html',
+    },
+  });
+});
+
+app.get('/:id/delete', async (_req, params) => {
+  let contents = '';
+  let status = 200;
+
+  const id = params.id as string ?? '';
+  const res = await KV.get<Paste>([id]);
+
+  if (res.value !== null) {
+    const { editCode } = res.value;
+    const hasEditCode = Boolean(editCode);
+    contents = deletePage({ id, hasEditCode });
+  } else {
+    contents = errorPage();
+    status = 404;
+  }
+
+  return new Response(contents, {
+    status,
+    headers: {
+      'content-type': 'text/html'
+    }
   });
 });
 
@@ -106,54 +179,6 @@ app.post('/save', async (req) => {
   });
 });
 
-app.get('/:id', async (_req, params) => {
-  let contents = '';
-  let status = 200;
-  const id = params.id as string ?? '';
-  const res = await KV.get<Paste>([id]);
-
-  if (res.value !== null) {
-    const { paste } = res.value;
-    const html = marked.parse(paste);
-    contents = pastePage({ id, html });
-    status = 200;
-  } else {
-    contents = errorPage();
-    status = 404;
-  }
-
-  return new Response(contents, {
-    status,
-    headers: {
-      'content-type': 'text/html',
-    },
-  });
-});
-
-app.get('/:id/edit', async (_req, params) => {
-  let contents = '';
-  let status = 200;
-  const id = params.id as string ?? '';
-  const res = await KV.get<Paste>([id]);
-
-  if (res.value !== null) {
-    const { editCode, paste } = res.value;
-    const hasEditCode = Boolean(editCode);
-    contents = editPage({ id, paste, hasEditCode });
-    status = 200;
-  } else {
-    contents = errorPage();
-    status = 404;
-  }
-
-  return new Response(contents, {
-    status,
-    headers: {
-      'content-type': 'text/html',
-    },
-  });
-});
-
 app.post('/:id/save', async (req, params) => {
   let contents = '302';
   let status = 302;
@@ -192,6 +217,50 @@ app.post('/:id/save', async (req, params) => {
     } else {
       await KV.set([id], { ...existing, paste });
       headers.set('location', '/' + id);
+    }
+  }
+
+  return new Response(contents, {
+    status,
+    headers,
+  });
+});
+
+app.post('/:id/delete', async (req, params) => {
+  let contents = '302';
+  let status = 302;
+  const headers = new Headers({
+    'content-type': 'text/html',
+  });
+
+  const id = params.id as string ?? '';
+  const form = await req.formData();
+  let editCode: string | undefined = form.get('editcode') as string;
+  if (typeof editCode === 'string') {
+    editCode = editCode.trim() || undefined;
+  }
+
+  if (id.trim().length === 0) {
+    headers.set('location', '/');
+  } else {
+    const res = await KV.get<Paste>([id]);
+    const existing = res.value as Paste;
+    const hasEditCode = Boolean(existing.editCode);
+
+    if (
+      hasEditCode &&
+      existing.editCode !== editCode
+    ) {
+      // editCode mismatch
+      status = 400;
+      contents = deletePage({
+        id,
+        hasEditCode,
+        errors: { editCode: 'invalid edit code' },
+      });
+    } else {
+      await KV.delete([id]);
+      headers.set('location', '/');
     }
   }
 

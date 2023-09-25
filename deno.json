@@ -5,7 +5,8 @@
     "start": "deno run --allow-net --unstable --allow-read main.ts"
   },
   "imports": {
-    "std/": "https://deno.land/std@0.202.0/"
+    "std/": "https://deno.land/std@0.202.0/",
+    "xss": "https://esm.sh/xss@1.0.14"
   },
   "lint": {
     "include": ["*.ts"],
