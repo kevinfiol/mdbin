@@ -18,7 +18,8 @@
     mode: 'markdown',
     value: textArea.value,
     keymap: 'sublime',
-    theme: 'material'
+    theme: 'material',
+    viewportMargin: Infinity
   });
 
   // initialize characterCount

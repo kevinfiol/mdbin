@@ -353,15 +353,13 @@ input.tab-input:checked + label {
     display: block;
 }
 
-/*set minimum heights for editor and preview*/
-/* #editor,
-#editor > .CodeMirror,
-#preview {
-    min-height: 20rem;
-} */
-
 .CodeMirror {
+    height: auto;
     padding: 1em;
+}
+
+.CodeMirror-scroll {
+    min-height: 20rem;
 }
 
 /* preview tab & paste */
