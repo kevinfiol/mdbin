@@ -327,6 +327,13 @@ button:not([disabled]):hover, .btn:hover {
 main {
     max-width: 1000px;
     margin: 0 auto;
+    position: relative;
+}
+
+#characterCount {
+    position: absolute;
+    top: 8px;
+    right: 0;
 }
 
 input ~ form > .tab { display: none }
@@ -347,11 +354,11 @@ input.tab-input:checked + label {
 }
 
 /*set minimum heights for editor and preview*/
-#editor,
+/* #editor,
 #editor > .CodeMirror,
 #preview {
-    min-height: 45rem;
-}
+    min-height: 20rem;
+} */
 
 .CodeMirror {
     padding: 1em;
@@ -365,6 +372,7 @@ input.tab-input:checked + label {
 
 .button-group {
     display: flex;
+    gap: 10px;
     margin: 1rem 0;
 }
 

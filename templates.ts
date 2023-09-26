@@ -2,6 +2,24 @@ const _if = (condition: unknown, template: string) => (
   condition ? template : ''
 );
 
+const Tabs = () => `
+  <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
+  <label for="tab1">editor</label>
+  <input type="radio" name="tabs" id="tab2" class="tab-input" />
+  <label for="tab2">preview</label>
+  <small id="characterCount"></small>
+`;
+
+const Editor = (paste = '') => `
+  <div class="tab tab-editor">
+    <textarea id="paste" name="paste" required>${paste}</textarea>
+    <div id="editor"></div>
+  </div>
+
+  <div id="preview" class="tab tab-preview">
+  </div>
+`;
+
 const layout = (content: string) => `
   <!DOCTYPE html>
   <html lang="en">
@@ -28,19 +46,10 @@ export const homePage = ({
   errors = { url: '' },
 } = {}) => layout(`
   <main>
-    <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
-    <label for="tab1">editor</label>
-    <input type="radio" name="tabs" id="tab2" class="tab-input" />
-    <label for="tab2">preview</label>
+    ${Tabs()}
 
     <form id="editor-form" method="post" action="/save">
-      <div class="tab tab-editor">
-        <textarea id="paste" name="paste" required>${paste}</textarea>
-        <div id="editor"></div>
-      </div>
-
-      <div id="preview" class="tab tab-preview">
-      </div>
+      ${Editor(paste)}
 
       <div class="flex gap-1 my1">
         <input
@@ -96,19 +105,10 @@ export const editPage = (
   { id = '', paste = '', hasEditCode = false, errors = { editCode: '' } } = {},
 ) => layout(`
   <main>
-    <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
-    <label for="tab1">editor</label>
-    <input type="radio" name="tabs" id="tab2" class="tab-input" />
-    <label for="tab2">preview</label>
+    ${Tabs()}
 
     <form id="editor-form" method="post" action="/${id}/save">
-      <div class="tab tab-editor">
-        <textarea id="paste" name="paste" required>${paste}</textarea>
-        <div id="editor"></div>
-      </div>
-
-      <div id="preview" class="tab tab-preview">
-      </div>
+      ${Editor(paste)}
 
       <div class="flex gap-1 my1">
         <input class="display-none" name="url" type="text" value="${id}" disabled />
