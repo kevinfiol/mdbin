@@ -6,7 +6,8 @@
   },
   "imports": {
     "std/": "https://deno.land/std@0.202.0/",
-    "xss": "https://esm.sh/xss@1.0.14"
+    "xss": "https://esm.sh/xss@1.0.14",
+    "marked": "https://esm.sh/marked@9.0.3"
   },
   "lint": {
     "include": ["*.ts"],

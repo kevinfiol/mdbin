@@ -1,8 +1,7 @@
 import xss from 'xss';
+import { marked } from 'marked';
 import { resolve } from 'std/path/mod.ts';
 import { walk } from 'std/fs/mod.ts';
-import { uid } from './lib/uid.js';
-import { marked } from './lib/marked.js';
 import { Router } from './router.ts';
 import { editPage, errorPage, homePage, pastePage, deletePage } from './templates.ts';
 
@@ -25,6 +24,7 @@ for await (const file of walk(STATIC_ROOT)) {
   }
 }
 
+const generateId = uid();
 const app = new Router();
 
 app.get('*', async (req) => {
@@ -162,7 +162,7 @@ app.post('/save', async (req) => {
     let exists = true;
 
     for (; exists;) {
-      id = uid();
+      id = generateId();
       exists = await KV.get<Paste>([id]).then(
         (r) => r.value !== null,
       );
@@ -287,4 +287,18 @@ function createSlug(text = '') {
   }
 
   return '';
+}
+
+function uid() {
+  // https://github.com/lukeed/uid
+  // MIT License
+  // Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com)
+  let IDX=36, HEX='';
+  while (IDX--) HEX += IDX.toString(36);
+
+  return () => {
+    let str='', num = 6;
+    while (num--) str += HEX[Math.random() * 36 | 0];
+    return str;
+  };
 }
