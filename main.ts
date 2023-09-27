@@ -1,21 +1,32 @@
 import xss from 'xss';
 import { marked } from 'marked';
+import { load } from 'std/dotenv/mod.ts';
 import { resolve } from 'std/path/mod.ts';
 import { walk } from 'std/fs/mod.ts';
 import { Router } from './router.ts';
-import { editPage, errorPage, homePage, pastePage, deletePage } from './templates.ts';
+import { storage } from './storage.ts';
+import {
+  deletePage,
+  editPage,
+  errorPage,
+  homePage,
+  pastePage,
+} from './templates.ts';
 
 interface Paste {
   paste: string;
   editCode?: string;
 }
 
-const KV = await Deno.openKv();
+await load({ export: true });
+
+const SERVER_PORT = Deno.env.get('SERVER_PORT') ?? 8000;
 const STATIC_ROOT = resolve('./static');
 const FILES = new Map<string, string>();
 const MIMES: Record<string, string> = {
   'js': 'text/javascript',
   'css': 'text/css',
+  'ico': 'image/vnd.microsoft.icon'
 };
 
 for await (const file of walk(STATIC_ROOT)) {
@@ -56,7 +67,7 @@ app.get('/:id', async (_req, params) => {
   let contents = '';
   let status = 200;
   const id = params.id as string ?? '';
-  const res = await KV.get<Paste>([id]);
+  const res = await storage.get(id);
 
   if (res.value !== null) {
     const { paste } = res.value;
@@ -80,7 +91,7 @@ app.get('/:id/edit', async (_req, params) => {
   let contents = '';
   let status = 200;
   const id = params.id as string ?? '';
-  const res = await KV.get<Paste>([id]);
+  const res = await storage.get(id);
 
   if (res.value !== null) {
     const { editCode, paste } = res.value;
@@ -105,7 +116,7 @@ app.get('/:id/delete', async (_req, params) => {
   let status = 200;
 
   const id = params.id as string ?? '';
-  const res = await KV.get<Paste>([id]);
+  const res = await storage.get(id);
 
   if (res.value !== null) {
     const { editCode } = res.value;
@@ -119,8 +130,8 @@ app.get('/:id/delete', async (_req, params) => {
   return new Response(contents, {
     status,
     headers: {
-      'content-type': 'text/html'
-    }
+      'content-type': 'text/html',
+    },
   });
 });
 
@@ -142,7 +153,7 @@ app.post('/save', async (req) => {
   }
 
   if (slug.length > 0) {
-    const res = await KV.get<Paste>([slug]);
+    const res = await storage.get(slug);
 
     if (res.value !== null) {
       status = 422;
@@ -153,7 +164,7 @@ app.post('/save', async (req) => {
         errors: { url: `url name unavailable: ${customUrl}` },
       });
     } else {
-      await KV.set([slug], { paste, editCode });
+      await storage.set(slug, { paste, editCode });
       status = 302;
       headers.set('location', '/' + slug.trim());
     }
@@ -163,12 +174,12 @@ app.post('/save', async (req) => {
 
     for (; exists;) {
       id = generateId();
-      exists = await KV.get<Paste>([id]).then(
+      exists = await storage.get(id).then(
         (r) => r.value !== null,
       );
     }
 
-    await KV.set([id], { paste, editCode });
+    await storage.set(id, { paste, editCode });
     status = 302;
     headers.set('location', '/' + id.trim());
   }
@@ -198,7 +209,7 @@ app.post('/:id/save', async (req, params) => {
   if (id.trim().length === 0) {
     headers.set('location', '/');
   } else {
-    const res = await KV.get<Paste>([id]);
+    const res = await storage.get(id);
     const existing = res.value as Paste;
     const hasEditCode = Boolean(existing.editCode);
 
@@ -215,7 +226,7 @@ app.post('/:id/save', async (req, params) => {
         errors: { editCode: 'invalid edit code' },
       });
     } else {
-      await KV.set([id], { ...existing, paste });
+      await storage.set(id, { ...existing, paste });
       headers.set('location', '/' + id);
     }
   }
@@ -243,7 +254,7 @@ app.post('/:id/delete', async (req, params) => {
   if (id.trim().length === 0) {
     headers.set('location', '/');
   } else {
-    const res = await KV.get<Paste>([id]);
+    const res = await storage.get(id);
     const existing = res.value as Paste;
     const hasEditCode = Boolean(existing.editCode);
 
@@ -259,7 +270,7 @@ app.post('/:id/delete', async (req, params) => {
         errors: { editCode: 'invalid edit code' },
       });
     } else {
-      await KV.delete([id]);
+      await storage.delete(id);
       headers.set('location', '/');
     }
   }
@@ -270,7 +281,7 @@ app.post('/:id/delete', async (req, params) => {
   });
 });
 
-Deno.serve({ port: 8000 }, app.handler.bind(app));
+Deno.serve({ port: Number(SERVER_PORT) }, app.handler.bind(app));
 
 function createSlug(text = '') {
   const lines = text.split('\n');
@@ -293,11 +304,11 @@ function uid() {
   // https://github.com/lukeed/uid
   // MIT License
   // Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com)
-  let IDX=36, HEX='';
+  let IDX = 36, HEX = '';
   while (IDX--) HEX += IDX.toString(36);
 
   return () => {
-    let str='', num = 6;
+    let str = '', num = 6;
     while (num--) str += HEX[Math.random() * 36 | 0];
     return str;
   };
