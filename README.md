@@ -1,4 +1,4 @@
-# mdbin (wip)
+# mdbin
 
 A pastebin for Markdown. Allows creation and sharing of Markdown instantly, and locking documents with edit codes.
 
