@@ -95,7 +95,6 @@ export const homePage = ({
 
 export const pastePage = ({ id = '', html = '', title = '' } = {}) => layout(title, `
   <main>
-    <header><a href="/">mdbin</a></header>
     <div class="paste">
       ${html}
     </div>

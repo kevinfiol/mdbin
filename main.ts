@@ -382,7 +382,7 @@ function buildToc(items: TocItem[] = []) {
     html += buildNestedList(items, 1);
   }
 
-  return html;
+  return html ? `<div class="toc">${html}</div>` : html;
 }
 
 function buildNestedList(items: TocItem[] = [], level: number) {
