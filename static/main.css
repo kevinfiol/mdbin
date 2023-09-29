@@ -53,6 +53,10 @@ section { margin-bottom: var(--spacing-4); }
 h1 { font-size: var(--font-xl-size); }
 h2 { font-size: var(--font-lg-size); }
 
+:where(h1, h2, h3, h4, h5, h6) > a {
+    color: var(--color) !important;
+}
+
 pre {
     padding: var(--spacing-4);
     border: 1px solid var(--border-color);
@@ -60,7 +64,6 @@ pre {
 }
 
 code { background-color: var(--code-bg-color); }
-/*pre > code { background-color: var(--bg-color); }*/
 
 a:not(.btn) {
     color: var(--link-color);
@@ -87,10 +90,17 @@ p a.-solid:not(.btn):hover {
 ul {
     list-style-type: square;
     padding-left: var(--spacing-4);
-    padding-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-1);
 }
 
-ul ul { padding-left: var(--spacing-6); }
+ul ul {
+    padding-left: var(--spacing-6); 
+    padding-bottom: 0;
+}
+
+header {
+    padding: 0.25rem 0.25rem;
+}
 
 table {
     width: 100%;
@@ -174,7 +184,7 @@ button, .btn {
     text-decoration: none !important;
     cursor: pointer;
     display: block;
-    padding: var(--spacing-3) var(--spacing-5);
+    padding: var(--spacing-2) var(--spacing-4);
     font-family: var(--font);
     font-size: var(--font-xs-size);
     background-color: var(--bg-color);
@@ -214,55 +224,6 @@ button:not([disabled]):hover, .btn:hover {
     display: flex;
 }
 
-/* components */
-.divider {
-    margin-top: var(--spacing-4);
-    margin-bottom: var(--spacing-4);
-    border-bottom: 1px dashed var(--border-color);
-}
-
-.card {
-    display: block;
-    border: 1px solid var(--border-color);
-}
-
-.card > header {
-    text-align: center;
-    overflow: hidden;
-    color: var(--bg-color);
-    background-color: var(--color);
-    padding: var(--spacing-1);
-}
-
-.card > header :where(a, a:hover) {
-    color: var(--bg-color);
-    background-color: var(--color);
-    margin: 0;
-    padding: 0;
-}
-
-.card > div {
-    padding: var(--spacing-4);
-}
-
-.alert, .error {
-    padding: var(--spacing-4);
-    margin-bottom: var(--spacing-4);
-}
-
-.alert {
-    color: var(--color);
-    border: 1px solid var(--color);
-}
-
-.error {
-    color: var(--error-color);
-    border: 1px solid var(--error-color);
-}
-
-.clickable { cursor: pointer; }
-.clickable:hover { background-color: var(--code-bg-color); }
-
 /* grid system */
 .columns-200 {
     grid-template-columns: repeat(auto-fit, minmax(var(--size-1), 1fr));
@@ -297,6 +258,7 @@ button:not([disabled]):hover, .btn:hover {
 .fixed { position: fixed; }
 .overflow-hidden { overflow: hidden; }
 .gap-1 { gap: 10px; }
+.width-100 { width: 100%; }
 
 .max-width-1 { max-width: var(--size-1); }
 .max-width-2 { max-width: var(--size-2); }
@@ -309,6 +271,8 @@ button:not([disabled]):hover, .btn:hover {
 .m0 { margin: 0 !important; }
 .p0 { padding: 0 !important; }
 .my1 { margin: 0.5rem 0; }
+.my2 { margin: 1rem 0; }
+.my3 { margin: 1.5rem 0; }
 
 .opacity-50 { opacity: 0.5; }
 .select-none { user-select: none; }
@@ -354,8 +318,13 @@ input.tab-input:checked + label {
 }
 
 .CodeMirror {
+    font-size: var(--font-sm-size);
     height: auto;
     padding: 1em;
+}
+
+code {
+    font-size: var(--font-sm-size);
 }
 
 .CodeMirror-scroll {
@@ -366,6 +335,8 @@ input.tab-input:checked + label {
 .paste,
 .tab-preview {
     padding: 1rem;
+    font-family: 'PT Sans', 'sans-serif';
+    font-size: var(--font-size);
 }
 
 .button-group {
@@ -378,6 +349,5 @@ input.tab-input:checked + label {
 .CodeMirror,
 .tab-preview,
 .paste {
-    font-size: var(--font-sm-size);
     background-color: var(--code-bg-color) !important;
 }

@@ -20,7 +20,7 @@ const Editor = (paste = '') => `
   </div>
 `;
 
-const layout = (content: string) => `
+const layout = (title: string, content: string) => `
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -31,7 +31,7 @@ const layout = (content: string) => `
     <link rel="stylesheet" href="/codemirror.min.css">
     <link rel="stylesheet" href="/main.css">
     <title>
-      pastebin
+      ${title || 'mdbin'}
     </title>
   </head>
   <body>
@@ -44,7 +44,7 @@ export const homePage = ({
   paste = '',
   url = '',
   errors = { url: '' },
-} = {}) => layout(`
+} = {}) => layout('mdbin', `
   <main>
     ${Tabs()}
 
@@ -52,27 +52,31 @@ export const homePage = ({
       ${Editor(paste)}
 
       <div class="flex gap-1 my1">
-        <input
-          name="url"
-          type="text"
-          placeholder="custom url"
-          minlength="3"
-          maxlength="40"
-          value="${url}"
-          pattern=".*\\S+.*"
-          aria-invalid="${Boolean(errors.url)}"
-          ${_if(errors.url, 'aria-describedby="url-error"')}
-        />
-        <input
-          name="editcode"
-          type="text"
-          placeholder="optional edit code"
-          minlength="3"
-          maxlength="40"
-        />
-        ${_if(errors.url, `
-          <strong id="url-error">${errors.url}</strong>
-        `)}
+        <div class="width-100">
+          <input
+            name="url"
+            type="text"
+            placeholder="custom url"
+            minlength="3"
+            maxlength="40"
+            value="${url}"
+            pattern=".*\\S+.*"
+            aria-invalid="${Boolean(errors.url)}"
+            ${_if(errors.url, 'aria-describedby="url-error"')}
+          />
+          ${_if(errors.url, `
+            <small id="url-error">${errors.url}</small>
+          `)}
+        </div>
+        <div class="width-100">
+          <input
+            name="editcode"
+            type="text"
+            placeholder="edit code (optional)"
+            minlength="3"
+            maxlength="40"
+          />
+        </div>
       </div>
 
       <div class="button-group">
@@ -89,12 +93,14 @@ export const homePage = ({
   <script src="/editor.js"></script>
 `);
 
-export const pastePage = ({ id = '', html = '' } = {}) => layout(`
+export const pastePage = ({ id = '', html = '', title = '' } = {}) => layout(title, `
   <main>
+    <header><a href="/">mdbin</a></header>
     <div class="paste">
       ${html}
     </div>
     <div class="button-group">
+      <a class="btn" href="/${id}/raw">raw</a>
       <a class="btn" href="/${id}/edit">edit</a>
       <a class="btn" href="/${id}/delete">delete</a>
     </div>
@@ -103,31 +109,32 @@ export const pastePage = ({ id = '', html = '' } = {}) => layout(`
 
 export const editPage = (
   { id = '', paste = '', hasEditCode = false, errors = { editCode: '' } } = {},
-) => layout(`
+) => layout(`edit ${id}`, `
   <main>
     ${Tabs()}
 
     <form id="editor-form" method="post" action="/${id}/save">
       ${Editor(paste)}
 
+      <input class="display-none" name="url" type="text" value="${id}" disabled />
       <div class="flex gap-1 my1">
-        <input class="display-none" name="url" type="text" value="${id}" disabled />
-
         ${_if(hasEditCode, `
-          <input
-            name="editcode"
-            type="text"
-            placeholder="edit code"
-            minlength="3"
-            maxlength="40"
-            required
-            aria-invalid="${Boolean(errors.editCode)}"
-            ${_if(errors.editCode, 'aria-describedby="editcode-error"')}
-          />
-        `)}
+          <div class="width-100">
+            <input
+              name="editcode"
+              type="text"
+              placeholder="edit code"
+              minlength="3"
+              maxlength="40"
+              required
+              aria-invalid="${Boolean(errors.editCode)}"
+              ${_if(errors.editCode, 'aria-describedby="editcode-error"')}
+            />
 
-        ${_if(errors.editCode, `
-          <strong id="editcode-error">${errors.editCode}</strong>
+            ${_if(errors.editCode, `
+              <small id="editcode-error">${errors.editCode}</small>
+            `)}
+          </div>
         `)}
       </div>
 
@@ -147,28 +154,30 @@ export const editPage = (
 
 export const deletePage = (
   { id = '', hasEditCode = false, errors = { editCode: '' } } = {}
-) => layout(`
+) => layout(`delete ${id}`, `
   <main>
-    <div>
+    <div class="my3">
       <em>are you sure you want to delete this paste?</em>
       <strong>${id}</strong>
     </div>
     <form method="post" action="/${id}/delete">
       ${_if(hasEditCode, `
-        <input
-          name="editcode"
-          type="text"
-          placeholder="edit code"
-          minlength="3"
-          maxlength="40"
-          required
-          aria-invalid="${Boolean(errors.editCode)}"
-          ${_if(errors.editCode, 'aria-describedby="editcode-error"')}
-        />
+        <div class="width-100">
+          <input
+            name="editcode"
+            type="text"
+            placeholder="edit code"
+            minlength="3"
+            maxlength="40"
+            required
+            aria-invalid="${Boolean(errors.editCode)}"
+            ${_if(errors.editCode, 'aria-describedby="editcode-error"')}
+          />
 
-        ${_if(errors.editCode, `
-          <strong id="editcode-error">${errors.editCode}</strong>
-        `)}
+          ${_if(errors.editCode, `
+            <small id="editcode-error">${errors.editCode}</small>
+          `)}
+        </div>
       `)}
 
       <div class="button-group">
@@ -184,6 +193,6 @@ export const deletePage = (
   </main>
 `);
 
-export const errorPage = () => layout(`
+export const errorPage = () => layout('404', `
   <p>404</p>
 `);

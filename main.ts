@@ -4,7 +4,7 @@ import { load } from 'std/dotenv/mod.ts';
 import { resolve } from 'std/path/mod.ts';
 import { walk } from 'std/fs/mod.ts';
 import { Router } from './router.ts';
-import { storage } from './storage.ts';
+import { storage, Paste } from './storage.ts';
 import {
   deletePage,
   editPage,
@@ -13,9 +13,11 @@ import {
   pastePage,
 } from './templates.ts';
 
-interface Paste {
-  paste: string;
-  editCode?: string;
+interface TocItem {
+  level: number;
+  text: string;
+  anchor: string;
+  subitems: TocItem[];
 }
 
 await load({ export: true });
@@ -26,7 +28,20 @@ const FILES = new Map<string, string>();
 const MIMES: Record<string, string> = {
   'js': 'text/javascript',
   'css': 'text/css',
-  'ico': 'image/vnd.microsoft.icon'
+  'ico': 'image/vnd.microsoft.icon',
+};
+
+const XSS_OPTIONS = {
+  whiteList: {
+    ...xss.whiteList,
+    // allow heading elements to have `id=` attributes
+    h1: ['id'],
+    h2: ['id'],
+    h3: ['id'],
+    h4: ['id'],
+    h5: ['id'],
+    h6: ['id']
+  }
 };
 
 for await (const file of walk(STATIC_ROOT)) {
@@ -34,6 +49,18 @@ for await (const file of walk(STATIC_ROOT)) {
     FILES.set('/' + file.name.normalize(), file.path);
   }
 }
+
+const renderer = new marked.Renderer();
+const tocItems: TocItem[] = [];
+renderer.heading = (text: string, level: number) => {
+  const anchor = createSlug(text);
+  const newItem = { level, text, anchor, subitems: [] };
+
+  tocItems.push(newItem);
+  return `<h${level} id="${anchor}"><a href="#${anchor}">${text}</a></h${level}>`;
+};
+
+marked.setOptions({ renderer });
 
 const generateId = uid();
 const app = new Router();
@@ -71,8 +98,19 @@ app.get('/:id', async (_req, params) => {
 
   if (res.value !== null) {
     const { paste } = res.value;
-    const html = xss(marked.parse(paste));
-    contents = pastePage({ id, html });
+    let html = xss(marked.parse(paste), XSS_OPTIONS);
+
+    // grab title from the first heading
+    const title = tocItems[0] ? tocItems[0].text : id;
+
+    // check for and add table of contents
+    // this also empties `tocItems` via mutation
+    const tocHtml = buildToc(tocItems);
+
+    // replace all instances of `[[[TOC]]]` with the table of contents
+    if (tocHtml) html = html.replace(/\[\[\[TOC\]\]\]/g, tocHtml);
+
+    contents = pastePage({ id, html, title });
     status = 200;
   } else {
     contents = errorPage();
@@ -135,6 +173,29 @@ app.get('/:id/delete', async (_req, params) => {
   });
 });
 
+app.get('/:id/raw', async (_req, params) => {
+  let contents = '';
+  let status = 200;
+  const id = params.id as string ?? '';
+  const res = await storage.get(id);
+
+  if (res.value !== null) {
+    const { paste } = res.value;
+    contents = paste;
+    status = 200;
+  } else {
+    contents = errorPage();
+    status = 404;
+  }
+
+  return new Response(contents, {
+    status,
+    headers: {
+      'content-type': 'text/plain',
+    },
+  });
+});
+
 app.post('/save', async (req) => {
   let status = 302;
   let contents = '';
@@ -161,7 +222,7 @@ app.post('/save', async (req) => {
       contents = homePage({
         paste,
         url: customUrl,
-        errors: { url: `url name unavailable: ${customUrl}` },
+        errors: { url: `url unavailable: ${customUrl}` },
       });
     } else {
       await storage.set(slug, { paste, editCode });
@@ -312,4 +373,29 @@ function uid() {
     while (num--) str += HEX[Math.random() * 36 | 0];
     return str;
   };
+}
+
+function buildToc(items: TocItem[] = []) {
+  let html = '';
+
+  while (items.length > 0) {
+    html += buildNestedList(items, 1);
+  }
+
+  return html;
+}
+
+function buildNestedList(items: TocItem[] = [], level: number) {
+  let html = '<ul>';
+
+  while (items.length > 0 && items[0].level === level) {
+    const item = items.shift();
+    if (item) html += `<li><a href="#${item.anchor}">${item.text}</a></li>`;
+  }
+
+  while (items.length > 0 && items[0].level > level) {
+    html += buildNestedList(items, level + 1);
+  }
+
+  return html + '</ul>';
 }

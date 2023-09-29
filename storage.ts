@@ -1,4 +1,4 @@
-interface Paste {
+export interface Paste {
   paste: string;
   editCode?: string;
 }
