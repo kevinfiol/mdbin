@@ -1,11 +1,11 @@
 (({ marked }) => {
   const MAX_LENGTH = 40000;
   const cmEl = document.getElementById('editor');
-  const textArea = document.getElementById('paste');
+  const textArea = document.getElementById('pasteTextArea');
   const editorTab = document.getElementById('tab1');
   const editorForm = document.getElementById('editor-form');
-  const preview = document.getElementById('preview');
   const previewTab = document.getElementById('tab2');
+  const previewContainer = document.getElementById('preview-container');
   const characterCount = document.getElementById('characterCount');
 
   // onload, reset to editorTab since we can't be sure preview tab will be populated
@@ -18,9 +18,12 @@
     mode: 'markdown',
     value: textArea.value,
     keymap: 'sublime',
-    theme: 'material',
+    theme: 'default',
     viewportMargin: Infinity
   });
+
+  // attach editor to window
+  window.cmEditor = editor;
 
   // initialize characterCount
   const updateCharacterCount = (count) => {
@@ -80,7 +83,7 @@
 
   // populate preview tab when activating it
   previewTab.addEventListener('change', () => {
-    preview.innerHTML = marked.parse(editor.getValue());
+    previewContainer.innerHTML = marked.parse(editor.getValue());
   });
 
   function debounce(cb, wait) {

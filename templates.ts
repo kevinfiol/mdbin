@@ -4,19 +4,19 @@ const _if = (condition: unknown, template: string) => (
 
 const Tabs = () => `
   <input type="radio" name="tabs" id="tab1" class="tab-input" checked />
-  <label for="tab1">editor</label>
+  <label class="tab" for="tab1">editor</label>
   <input type="radio" name="tabs" id="tab2" class="tab-input" />
-  <label for="tab2">preview</label>
+  <label class="tab" for="tab2">preview</label>
   <small id="characterCount"></small>
 `;
 
 const Editor = (paste = '') => `
-  <div class="tab tab-editor">
-    <textarea id="paste" name="paste" required>${paste}</textarea>
+  <div id="editor-container">
+    <textarea id="pasteTextArea" name="paste" required>${paste}</textarea>
     <div id="editor"></div>
   </div>
 
-  <div id="preview" class="tab tab-preview">
+  <div id="preview-container">
   </div>
 `;
 
@@ -35,7 +35,13 @@ const layout = (title: string, content: string) => `
     </title>
   </head>
   <body>
+    <div class="dark-mode-container">
+      <input style="display: none;" type="checkbox" id="darkSwitch" />
+      <label class="dark-mode-btn" for="darkSwitch">🌒</label>
+    </div>
+
     ${content}
+    <script src="/theme-switch.js"></script>
   </body>
   </html>
 `;
@@ -51,8 +57,8 @@ export const homePage = ({
     <form id="editor-form" method="post" action="/save">
       ${Editor(paste)}
 
-      <div class="flex gap-1 my1">
-        <div class="width-100">
+      <div class="input-group">
+        <div>
           <input
             name="url"
             type="text"
@@ -65,10 +71,10 @@ export const homePage = ({
             ${_if(errors.url, 'aria-describedby="url-error"')}
           />
           ${_if(errors.url, `
-            <small id="url-error">${errors.url}</small>
+            <small class="error" id="url-error">${errors.url}</small>
           `)}
         </div>
-        <div class="width-100">
+        <div>
           <input
             name="editcode"
             type="text"
@@ -95,7 +101,7 @@ export const homePage = ({
 
 export const pastePage = ({ id = '', html = '', title = '' } = {}) => layout(title, `
   <main>
-    <div class="paste">
+    <div class="paste-container">
       ${html}
     </div>
     <div class="button-group">
@@ -116,9 +122,9 @@ export const editPage = (
       ${Editor(paste)}
 
       <input class="display-none" name="url" type="text" value="${id}" disabled />
-      <div class="flex gap-1 my1">
+      <div class="input-group">
         ${_if(hasEditCode, `
-          <div class="width-100">
+          <div>
             <input
               name="editcode"
               type="text"
@@ -131,7 +137,7 @@ export const editPage = (
             />
 
             ${_if(errors.editCode, `
-              <small id="editcode-error">${errors.editCode}</small>
+              <small class="error" id="editcode-error">${errors.editCode}</small>
             `)}
           </div>
         `)}
@@ -155,29 +161,31 @@ export const deletePage = (
   { id = '', hasEditCode = false, errors = { editCode: '' } } = {}
 ) => layout(`delete ${id}`, `
   <main>
-    <div class="my3">
+    <div>
       <em>are you sure you want to delete this paste?</em>
       <strong>${id}</strong>
     </div>
     <form method="post" action="/${id}/delete">
-      ${_if(hasEditCode, `
-        <div class="width-100">
-          <input
-            name="editcode"
-            type="text"
-            placeholder="edit code"
-            minlength="3"
-            maxlength="40"
-            required
-            aria-invalid="${Boolean(errors.editCode)}"
-            ${_if(errors.editCode, 'aria-describedby="editcode-error"')}
-          />
+      <div class="input-group">
+        ${_if(hasEditCode, `
+          <div>
+            <input
+              name="editcode"
+              type="text"
+              placeholder="edit code"
+              minlength="3"
+              maxlength="40"
+              required
+              aria-invalid="${Boolean(errors.editCode)}"
+              ${_if(errors.editCode, 'aria-describedby="editcode-error"')}
+            />
 
-          ${_if(errors.editCode, `
-            <small id="editcode-error">${errors.editCode}</small>
-          `)}
-        </div>
-      `)}
+            ${_if(errors.editCode, `
+              <small class="error" id="editcode-error">${errors.editCode}</small>
+            `)}
+          </div>
+        `)}
+      </div>
 
       <div class="button-group">
         <button type="submit">
