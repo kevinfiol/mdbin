@@ -17,3 +17,4 @@ Easily and freely self-hostable on Deno Deploy.
 - [ ] code highlighting
 - [ ] TOC in preview
 - [ ] use es6 modules for frontend js
+- [ ] edit history
