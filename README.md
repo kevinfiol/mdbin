@@ -11,6 +11,9 @@ Easily and freely self-hostable on Deno Deploy.
 - [ ] Docker/Podman file
 - [x] Table of Contents support
 - [x] Clickable anchor links
-- [ ] How-to + Source link
+- [x] How-to + Source link
 - [x] Set arbitrary paste limit
 - [ ] Error handling for Deno KV/SQLite issues
+- [ ] code highlighting
+- [ ] TOC in preview
+- [ ] use es6 modules for frontend js
