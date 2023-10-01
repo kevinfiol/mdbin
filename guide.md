@@ -10,19 +10,21 @@ The following guide has been adapted with modifications from [learnxinyminutes](
    <ul>
       <li><a href="#mdbin-guide">mdbin guide</a></li>
       <ul>
-         <li><a href="#html-elements">HTML Elements</a></li>
-         <li><a href="#headings">Headings</a></li>
-         <li><a href="#simple-text-styles">Simple text styles</a></li>
-         <li><a href="#paragraphs">Paragraphs</a></li>
-         <li><a href="#blockquotes">Blockquotes</a></li>
-         <li><a href="#lists">Lists</a></li>
-         <li><a href="#task-lists">Task Lists</a></li>
-         <li><a href="#code-blocks">Code Blocks</a></li>
-         <li><a href="#horizontal-rule">Horizontal rule</a></li>
-         <li><a href="#links">Links</a></li>
-         <li><a href="#table-of-contents">Table of Contents</a></li>
-         <li><a href="#images">Images</a></li>
-         <li><a href="#tables">Tables</a></li>
+        <li><a href="#custom-urls">Custom URLs</a></li>
+        <li><a href="#edit-codes">Edit Codes</a></li>
+        <li><a href="#html-elements">HTML Elements</a></li>
+        <li><a href="#headings">Headings</a></li>
+        <li><a href="#simple-text-styles">Simple text styles</a></li>
+        <li><a href="#paragraphs">Paragraphs</a></li>
+        <li><a href="#blockquotes">Blockquotes</a></li>
+        <li><a href="#lists">Lists</a></li>
+        <li><a href="#task-lists">Task Lists</a></li>
+        <li><a href="#code-blocks">Code Blocks</a></li>
+        <li><a href="#horizontal-rule">Horizontal rule</a></li>
+        <li><a href="#links">Links</a></li>
+        <li><a href="#table-of-contents">Table of Contents</a></li>
+        <li><a href="#images">Images</a></li>
+        <li><a href="#tables">Tables</a></li>
       </ul>
    </ul>
 </div>
