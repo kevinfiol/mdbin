@@ -1,3 +1,5 @@
+import { marked } from 'marked';
+
 const _if = (condition: unknown, template: string) => (
   condition ? template : ''
 );
@@ -41,6 +43,14 @@ const layout = (title: string, content: string) => `
     </div>
 
     ${content}
+    <footer>
+      <hr />
+      <div class="footer-links">
+        <a href="/">new</a>
+        <a href="/guide">guide</a>
+        <a href="https://github.com/kevinfiol/mdbin">source</a>
+      </div>
+    </footer>
     <script src="/theme-switch.js"></script>
   </body>
   </html>
@@ -108,6 +118,14 @@ export const pastePage = ({ id = '', html = '', title = '' } = {}) => layout(tit
       <a class="btn" href="/${id}/raw">raw</a>
       <a class="btn" href="/${id}/edit">edit</a>
       <a class="btn" href="/${id}/delete">delete</a>
+    </div>
+  </main>
+`);
+
+export const guidePage = ({ html = '', title = '' } = {}) => layout(title, `
+  <main>
+    <div class="paste-container">
+      ${html}
     </div>
   </main>
 `);

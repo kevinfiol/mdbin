@@ -106,18 +106,18 @@ body {
     font-family: var(--sans-serif);
 }
 
-main {
+main, footer {
     max-width: 1000px;
     margin: 0 auto;
     position: relative;
 }
 
-h1 { font-size: var(--font-6-size); margin: var(--spacing-4) 0; }
-h2 { font-size: var(--font-5-size); margin: var(--spacing-4) 0; }
-h3 { font-size: var(--font-4-size); margin: var(--spacing-3) 0; }
-h4 { font-size: var(--font-3-size); margin: var(--spacing-3) 0; }
-h5 { font-size: var(--font-3-size); margin: var(--spacing-2) 0; }
-h6 { font-size: var(--font-3-size); margin: var(--spacing-2) 0; }
+h1 { font-size: var(--font-6-size); margin: var(--spacing-5) 0; }
+h2 { font-size: var(--font-5-size); margin: var(--spacing-5) 0; }
+h3 { font-size: var(--font-4-size); margin: var(--spacing-4) 0; }
+h4 { font-size: var(--font-4-size); margin: var(--spacing-4) 0; }
+h5 { font-size: var(--font-3-size); margin: var(--spacing-3) 0; }
+h6 { font-size: var(--font-3-size); margin: var(--spacing-3) 0; }
 
 :where(h1, h2, h3, h4, h5, h6) > a {
     color: var(--color) !important;
@@ -133,7 +133,7 @@ h6 { font-size: var(--font-3-size); margin: var(--spacing-2) 0; }
 }
 
 p {
-    margin: var(--spacing-1) 0;
+    margin: var(--spacing-3) 0;
 }
 
 a:not(.btn) {
@@ -147,6 +147,7 @@ a:not(.btn):hover {
 
 pre {
     padding: var(--spacing-3);
+    margin: var(--spacing-5) 0;
     border: 1px solid var(--border-color);
     overflow: auto;
 }
@@ -157,8 +158,12 @@ pre, code {
     color: var(--faint-bg-color);
 }
 
-table code, p code {
+code {
     padding: var(--spacing-1);
+}
+
+pre code {
+    padding: 0;
 }
 
 blockquote {
@@ -321,6 +326,13 @@ textarea,
 
 .input-group > div {
     width: 100%;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-4);
+    justify-content: center;
 }
 
 /* misc specific elements */

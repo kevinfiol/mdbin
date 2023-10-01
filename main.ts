@@ -1,5 +1,5 @@
 import xss from 'xss';
-import { marked } from 'marked';
+import { Marked, Renderer } from 'marked';
 import { load } from 'std/dotenv/mod.ts';
 import { resolve } from 'std/path/mod.ts';
 import { walk } from 'std/fs/mod.ts';
@@ -11,6 +11,7 @@ import {
   errorPage,
   homePage,
   pastePage,
+  guidePage
 } from './templates.ts';
 
 interface TocItem {
@@ -28,7 +29,7 @@ const FILES = new Map<string, string>();
 const MIMES: Record<string, string> = {
   'js': 'text/javascript',
   'css': 'text/css',
-  'ico': 'image/vnd.microsoft.icon',
+  'ico': 'image/vnd.microsoft.icon'
 };
 
 const XSS_OPTIONS = {
@@ -49,18 +50,6 @@ for await (const file of walk(STATIC_ROOT)) {
     FILES.set('/' + file.name.normalize(), file.path);
   }
 }
-
-const renderer = new marked.Renderer();
-const tocItems: TocItem[] = [];
-renderer.heading = (text: string, level: number) => {
-  const anchor = createSlug(text);
-  const newItem = { level, text, anchor, subitems: [] };
-
-  tocItems.push(newItem);
-  return `<h${level} id="${anchor}"><a href="#${anchor}">${text}</a></h${level}>`;
-};
-
-marked.setOptions({ renderer });
 
 const generateId = uid();
 const app = new Router();
@@ -90,6 +79,17 @@ app.get('/', () => {
   });
 });
 
+app.get('/guide', async () => {
+  const guideMd = await Deno.readTextFile('./guide.md');
+  const parse = createParser();
+  const { html, title } = parse(guideMd, { toc: false });
+
+  return new Response(guidePage({ html, title }), {
+    status: 200,
+    headers: { 'content-type': 'text/html' }
+  });
+});
+
 app.get('/:id', async (_req, params) => {
   let contents = '';
   let status = 200;
@@ -97,18 +97,12 @@ app.get('/:id', async (_req, params) => {
   const res = await storage.get(id);
 
   if (res.value !== null) {
+    const parse = createParser();
     const { paste } = res.value;
-    let html = xss(marked.parse(paste), XSS_OPTIONS);
 
-    // grab title from the first heading
-    const title = tocItems[0] ? tocItems[0].text : id;
-
-    // check for and add table of contents
-    // this also empties `tocItems` via mutation
-    const tocHtml = buildToc(tocItems);
-
-    // replace all instances of `[[[TOC]]]` with the table of contents
-    if (tocHtml) html = html.replace(/\[\[\[TOC\]\]\]/g, tocHtml);
+    let { html, title } = parse(paste);
+    html = xss(html, XSS_OPTIONS);
+    if (!title) title = id;
 
     contents = pastePage({ id, html, title });
     status = 200;
@@ -216,7 +210,7 @@ app.post('/save', async (req) => {
   if (slug.length > 0) {
     const res = await storage.get(slug);
 
-    if (res.value !== null) {
+    if (slug === 'guide' || res.value !== null) {
       status = 422;
 
       contents = homePage({
@@ -343,6 +337,35 @@ app.post('/:id/delete', async (req, params) => {
 });
 
 Deno.serve({ port: Number(SERVER_PORT) }, app.handler.bind(app));
+
+function createParser() {
+  const tocItems: TocItem[] = [];
+
+  const renderer = {
+    heading(text: string, level: number) {
+      const anchor = createSlug(text);
+      const newItem = { level, text, anchor, subitems: [] };
+
+      tocItems.push(newItem);
+      return `<h${level} id="${anchor}"><a href="#${anchor}">${text}</a></h${level}>`;
+    }
+  };
+
+  const marked = new Marked({ renderer });
+  const parse = (markdown: string, { toc = true } = {}) => {
+    let html = marked.parse(markdown) as string;
+    const title = tocItems[0] ? tocItems[0].text : '';
+
+    if (toc) {
+      const tocHtml = buildToc(tocItems);
+      if (tocHtml) html = html.replace(/\[\[\[TOC\]\]\]/g, tocHtml);
+    }
+
+    return { title, html };
+  };
+
+  return parse;
+}
 
 function createSlug(text = '') {
   const lines = text.split('\n');
