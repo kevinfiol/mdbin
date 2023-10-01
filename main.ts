@@ -351,7 +351,7 @@ function createParser() {
     },
   };
 
-  const marked = new Marked({ renderer });
+  const marked = new Marked({ renderer, breaks: true });
   const parse = (markdown: string, { toc = true } = {}) => {
     let html = marked.parse(markdown) as string;
     const title = tocItems[0] ? tocItems[0].text : '';
