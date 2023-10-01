@@ -1,17 +1,17 @@
 import xss from 'xss';
-import { Marked, Renderer } from 'marked';
+import { Marked } from 'marked';
 import { load } from 'std/dotenv/mod.ts';
 import { resolve } from 'std/path/mod.ts';
 import { walk } from 'std/fs/mod.ts';
 import { Router } from './router.ts';
-import { storage, Paste } from './storage.ts';
+import { Paste, storage } from './storage.ts';
 import {
   deletePage,
   editPage,
   errorPage,
+  guidePage,
   homePage,
   pastePage,
-  guidePage
 } from './templates.ts';
 
 interface TocItem {
@@ -29,7 +29,7 @@ const FILES = new Map<string, string>();
 const MIMES: Record<string, string> = {
   'js': 'text/javascript',
   'css': 'text/css',
-  'ico': 'image/vnd.microsoft.icon'
+  'ico': 'image/vnd.microsoft.icon',
 };
 
 const XSS_OPTIONS = {
@@ -41,8 +41,8 @@ const XSS_OPTIONS = {
     h3: ['id'],
     h4: ['id'],
     h5: ['id'],
-    h6: ['id']
-  }
+    h6: ['id'],
+  },
 };
 
 for await (const file of walk(STATIC_ROOT)) {
@@ -86,7 +86,7 @@ app.get('/guide', async () => {
 
   return new Response(guidePage({ html, title }), {
     status: 200,
-    headers: { 'content-type': 'text/html' }
+    headers: { 'content-type': 'text/html' },
   });
 });
 
@@ -348,7 +348,7 @@ function createParser() {
 
       tocItems.push(newItem);
       return `<h${level} id="${anchor}"><a href="#${anchor}">${text}</a></h${level}>`;
-    }
+    },
   };
 
   const marked = new Marked({ renderer });

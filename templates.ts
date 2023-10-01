@@ -1,5 +1,3 @@
-import { marked } from 'marked';
-
 const _if = (condition: unknown, template: string) => (
   condition ? template : ''
 );
