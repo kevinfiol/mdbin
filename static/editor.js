@@ -83,7 +83,7 @@
 
   // populate preview tab when activating it
   previewTab.addEventListener('change', () => {
-    previewContainer.innerHTML = marked.parse(editor.getValue());
+    previewContainer.innerHTML = marked.parse(editor.getValue(), { breaks: true });
   });
 
   function debounce(cb, wait) {
