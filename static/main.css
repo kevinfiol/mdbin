@@ -314,7 +314,7 @@ textarea,
 
 .button-group {
     display: flex;
-    gap: var(--spacing-1);
+    gap: var(--spacing-3);
     margin: var(--spacing-4) 0;
 }
 
