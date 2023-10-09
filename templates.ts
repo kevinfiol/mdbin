@@ -217,5 +217,8 @@ export const deletePage = (
 `);
 
 export const errorPage = () => layout('404', `
-  <p>404</p>
+  <main>
+    <h1>404</h1>
+    <p>That paste doesn't exist! Maybe it was deleted?</p>
+  </main>
 `);
