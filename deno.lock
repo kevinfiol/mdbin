@@ -56,8 +56,11 @@
     "https://esm.sh/lz-string@1.5.0": "a4322573bbbd2d044b5c0c30024bd440f2890ff55730675fa5f31987d42aec20",
     "https://esm.sh/marked@9.0.3": "183e97db69c449c9f6b739a2fb575a14e64fa12970cd24ec78ce909e0d8568c0",
     "https://esm.sh/v135/cssfilter@0.0.10/denonext/cssfilter.mjs": "b2dec5f4b51c7574509f04305aa54e33f9de336d66eade79f05552312f18f40b",
+    "https://esm.sh/v135/lz-string@1.5.0": "a4322573bbbd2d044b5c0c30024bd440f2890ff55730675fa5f31987d42aec20",
     "https://esm.sh/v135/lz-string@1.5.0/denonext/lz-string.mjs": "d7c5e1cdf048a845f4da9563ecc9fca66d2caddf625d6632512bc8a477ce75d7",
+    "https://esm.sh/v135/marked@9.0.3": "183e97db69c449c9f6b739a2fb575a14e64fa12970cd24ec78ce909e0d8568c0",
     "https://esm.sh/v135/marked@9.0.3/denonext/marked.mjs": "6749a08b54635f8e6842b0b573637901bbef6de0bd39424f425a012de06dbcf1",
+    "https://esm.sh/v135/xss@1.0.14": "8102ceb8c90a3acaa2e7611559aa5a3ff41554f2cc3b06122739a9589c78f8ff",
     "https://esm.sh/v135/xss@1.0.14/denonext/xss.mjs": "14816f7618a48f2141c7ca320bdf60ef284f4015dfa3a8f7fd15c65c922f556d",
     "https://esm.sh/xss@1.0.14": "8102ceb8c90a3acaa2e7611559aa5a3ff41554f2cc3b06122739a9589c78f8ff"
   }

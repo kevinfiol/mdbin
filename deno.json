@@ -7,16 +7,25 @@
   },
   "imports": {
     "std/": "https://deno.land/std@0.202.0/",
-    "xss": "https://esm.sh/xss@1.0.14",
-    "marked": "https://esm.sh/marked@9.0.3",
-    "lz": "https://esm.sh/lz-string@1.5.0"
+    "lz": "https://esm.sh/v135/lz-string@1.5.0",
+    "marked": "https://esm.sh/v135/marked@9.0.3",
+    "xss": "https://esm.sh/v135/xss@1.0.14"
   },
   "lint": {
-    "include": ["*.ts"],
-    "exclude": ["lib/", "static/"],
+    "include": [
+      "*.ts"
+    ],
+    "exclude": [
+      "lib/",
+      "static/"
+    ],
     "rules": {
-      "tags": ["recommended"],
-      "include": ["no-unused-vars"]
+      "tags": [
+        "recommended"
+      ],
+      "include": [
+        "no-unused-vars"
+      ]
     }
   },
   "fmt": {
@@ -26,7 +35,13 @@
     "semiColons": true,
     "singleQuote": true,
     "proseWrap": "preserve",
-    "include": ["*.ts"],
-    "exclude": ["lib/", "static/", "templates.ts"]
+    "include": [
+      "*.ts"
+    ],
+    "exclude": [
+      "lib/",
+      "static/",
+      "templates.ts"
+    ]
   }
 }
