@@ -106,7 +106,7 @@ body {
     font-family: var(--sans-serif);
 }
 
-main, footer {
+main, footer, .demo-alert {
     max-width: 1000px;
     margin: 0 auto;
     position: relative;
