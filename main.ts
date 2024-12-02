@@ -40,7 +40,7 @@ const XSS_OPTIONS = {
     h4: ['id'],
     h5: ['id'],
     h6: ['id'],
-    input: ['disabled', 'type', 'checked']
+    input: ['disabled', 'type', 'checked'],
   },
 };
 

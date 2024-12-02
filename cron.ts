@@ -1,15 +1,17 @@
-import { MODE } from './env.ts';
+import { DEMO_CLEAR_INTERVAL, MODE } from './env.ts';
 
 if (MODE === 'demo') {
-  const INTERVAL = Number(Deno.env.get('DEMO_CLEAR_INTERVAL')) ?? 5;
+  Deno.cron(
+    'Clear KV',
+    { minute: { every: DEMO_CLEAR_INTERVAL } },
+    async () => {
+      const KV = await Deno.openKv();
 
-  Deno.cron('Clear KV', { minute: { every: INTERVAL } }, async () => {
-    const KV = await Deno.openKv();
+      for await (const e of KV.list({ prefix: [] })) {
+        await KV.delete(e.key);
+      }
 
-    for await (const e of KV.list({ prefix: [] })) {
-      await KV.delete(e.key);
-    }
-
-    KV.close();
-  });
+      KV.close();
+    },
+  );
 }
