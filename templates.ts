@@ -1,3 +1,5 @@
+import { MODE } from './env.ts';
+
 const _if = (condition: unknown, template: string) => (
   condition ? template : ''
 );
@@ -39,6 +41,15 @@ const layout = (title: string, content: string) => `
       <input style="display: none;" type="checkbox" id="darkSwitch" />
       <label class="dark-mode-btn" for="darkSwitch">🌒</label>
     </div>
+
+    ${_if(MODE === 'demo', `
+      <div role="alert" class="demo-alert">
+        <strong style="font-size: 2em">
+          <p>This is a DEMO instance.</p>
+          <p>Posts will be automatically deleted every few minutes.</p>
+        </strong>
+      </div>
+    `)}
 
     ${content}
     <footer>

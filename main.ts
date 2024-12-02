@@ -1,8 +1,8 @@
 import xss from 'xss';
 import { Marked } from 'marked';
-import { load } from 'std/dotenv/mod.ts';
 import { resolve } from 'std/path/mod.ts';
 import { walk } from 'std/fs/mod.ts';
+import { SERVER_PORT } from './env.ts';
 import { Router } from './router.ts';
 import { Paste, storage } from './storage.ts';
 import {
@@ -13,6 +13,7 @@ import {
   homePage,
   pastePage,
 } from './templates.ts';
+import './cron.ts';
 
 interface TocItem {
   level: number;
@@ -21,9 +22,6 @@ interface TocItem {
   subitems: TocItem[];
 }
 
-await load({ export: true });
-
-const SERVER_PORT = Deno.env.get('SERVER_PORT') ?? 8000;
 const STATIC_ROOT = resolve('./static');
 const FILES = new Map<string, string>();
 const MIMES: Record<string, string> = {
