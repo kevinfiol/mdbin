@@ -169,6 +169,7 @@ app.get('/:id/delete', async (_req, params) => {
 app.get('/:id/raw', async (_req, params) => {
   let contents = '';
   let status = 200;
+  let contentType = 'text/plain';
   const id = params.id as string ?? '';
   const res = await storage.get(id);
 
@@ -179,12 +180,13 @@ app.get('/:id/raw', async (_req, params) => {
   } else {
     contents = errorPage();
     status = 404;
+    contentType = 'text/html';
   }
 
   return new Response(contents, {
     status,
     headers: {
-      'content-type': 'text/plain',
+      'content-type': contentType,
     },
   });
 });
