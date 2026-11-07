@@ -1,5 +1,7 @@
 # mdbin
 
+**This project has been deprecated now that Deno and Deno Deploy are being retired. I will not maintain this. I may rewrite it in Golang in the future.**
+
 A pastebin for Markdown. Allows creation and sharing of Markdown instantly, and locking documents with edit codes.
 
 Easily and freely self-hostable on Deno Deploy.
